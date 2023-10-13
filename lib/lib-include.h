@@ -3,7 +3,7 @@
 #include "./utility/metrics.h"
 #include "./preprocessing/gaussian_filter/gaussianFilter.h"
 #include "./stb-implement/StbImageImplementation.h"
-#include "./filter-process/filter-process.h"
+#include "./preprocessing/filter-process/filter-process.h"
 #include "./edge_detector/canny/Canny.h"
 #include "./edge_detector/sobel/sobel.h"
 
