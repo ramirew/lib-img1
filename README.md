@@ -11,7 +11,7 @@ Library to process images, have Canny, Sobel, Gaussian filter.
   2. **Clonar repositorio**<br/>
      Abrir la terminal de Visual Studio y clonar el repositorio.<br/>
      ```bash 
-       $ git clone [url_repositorio]
+       $ git clone https://github.com/ismaelfari1996/lib-img.git
      ```
      Crear un fichero a main.cpp dentro del proyecto.
      ```bash
