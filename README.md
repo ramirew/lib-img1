@@ -13,7 +13,7 @@ Library to process images, have Canny, Sobel, Gaussian filter.
      ```bash 
        $ git clone https://github.com/ismaelfari1996/lib-img.git
      ```
-     Crear un fichero a main.cpp dentro del proyecto.
+     Crear un fichero en main.cpp dentro del proyecto.
      ```bash
        -mi_proyecto/
            |-lib-img/
