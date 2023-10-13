@@ -20,6 +20,6 @@ Library to process images, have Canny, Sobel, Gaussian filter.
            |-main.cpp
      ```
       Agregar libreria en <b>main.cpp</b>.<br/>
-      ```bash main.cpp
-        #include "./lib-img/lib/includes.h
+      ```bash
+        #include "./lib-img/lib/lib-include.h
       ```
