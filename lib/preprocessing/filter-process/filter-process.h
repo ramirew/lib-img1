@@ -10,7 +10,23 @@ private:
 Utility u;
 public:
  FilterProcess(/* args */);
+ /**
+  * @brief Ejecuta la operacion de convolucion.
+  * @param image Matriz puntero de tipo double** que contiene la imagen
+  * @param positionX Indice x de la imagen donde va iniciar la operacion de convolucion
+  * @param positionY Indice y de la imagen donde va iniciar la operacion de convolucion
+  * @param kernel Matriz de tipo double ** que contiene el kernel del filtro.
+  * @param kernelSize Longitud del kernel.
+ */
  double convolution(double ** &image, short int positionX, short int positionY, double ** kernel, short int kernelSize);
+/**
+  * @brief Ejecuta la operacion de convolucion.
+  * @param image Matriz puntero de tipo double** que contiene la imagen
+  * @param positionX Indice x de la imagen donde va iniciar la operacion de convolucion
+  * @param positionY Indice y de la imagen donde va iniciar la operacion de convolucion
+  * @param kernel Matriz de tipo vector<vector<int>> que contiene el kernel del filtro.
+ */
+
  double convolution(double** &image,short int positionX, short int positionY, std::vector<std::vector<int>> kernel);
  /**
   * @brief Funcion encargada de ejecutar la operacion de Zero Padding
@@ -20,6 +36,13 @@ public:
   * @param kernelSize Longitud del kernel
  */
  double** zeroPadding(double ** &image, short int &width, short int &height, short int kernelSize);
+ /**
+  * @brief Ejecuta la operacion de convolucion.
+  * @param image Matriz puntero de tipo double** que contiene la imagen
+  * @param width Numero de columnas de la imagen
+  * @param height Numero de filas de la imagen
+  * @param kernel Matriz de tipo vector<vector<int>> que contiene el kernel del filtro.
+ */
  double** conv2d(double** image, short int width, short int height, std::vector<std::vector<int>> kernel);
 
      
@@ -36,7 +59,6 @@ double** FilterProcess::zeroPadding(double ** &image, short int &width, short in
     // Se crea una nueva matriz que contedra la imagen aumentado el padding.
     auto** imagePadding = u.initMatrix((width + paddingSize), (height + paddingSize),0.0);
     // Agregar el paddig a la matriz de la imagen
-    // double aux=0;
     for (short int i = index; i < (height + index); i++)
     {
         for (short int j = index; j < (width + index); j++)
@@ -45,7 +67,6 @@ double** FilterProcess::zeroPadding(double ** &image, short int &width, short in
         }
     }
     int j = 0;
-    //u.free_memory(image, height);
     width = (width + paddingSize);
     height = (height + paddingSize);
     return imagePadding;
@@ -101,9 +122,7 @@ double FilterProcess::convolution(double** &image, short int positionX, short in
         {
             // realiza la operacion de la comvolucion de cada pixel de la imagen con el kernel
             result[y][x] = convolution(matrixPadding, x, y,kernel);
-           // printf("%f\t",result[y][x]);
         }
-       // printf("\n");
     }
     u.free_memory(matrixPadding,height);
     return result;
