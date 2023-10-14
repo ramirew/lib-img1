@@ -11,6 +11,7 @@ class Canny{
 private:
 	GaussianFilter gaussian;
 	StbImageImplementation stb;
+	Utility u;
 	double  horizontalPixelDifference;
 	double  verticalPixelDifference;
 	double  diagonalDiffernce, reverseDiagonalDifference;
@@ -25,56 +26,23 @@ private:
 	void blackWitheVector(double ** image, int width, int height, double * &blackWithe, int * &stack, std::vector<int> &pixel, double minthresh);
 	int ** getBorder(double * blackWitheVector, int width, int height);
 public:
-	void h();
-	int ** initBinaryMatrix(int width, int height);
+
 	void addGamma(double ** &image, int width, int height, double gamma);
-	void canny_free_memory(double ** &matrix, int height);
-	void canny_free_memory(int ** &matrix, int height);
 	cannyMatrix canny(double **image, int width, int height, double thresh[2],double sigma,double gamma=1, double radius=1);
 
 };
 
-void Canny::canny_free_memory(double ** &matrix, int height){
-	for (int i = 0; i < height; ++i)
-	{
-		delete [] matrix[i];
-	}
-	delete [] matrix;
-	matrix= nullptr;
-}
-
-void Canny::canny_free_memory(int** &matrix, int height){
-	for (int i = 0; i < height; ++i)
-	{
-		delete [] matrix[i];
-	}
-	delete [] matrix;
-	matrix= nullptr;
-}
-
 double Canny::computeSigma(int kernelSize){
 	return 0.3 * ((kernelSize - 1) * 0.5 - 1) + 0.8;
 }
-cannyMatrix Canny::initBinaryMatrix(int width, int height){
-	cannyMatrix matrix=new int*[height];
-	for (int i = 0; i < height; ++i)
-	{
-		matrix[i]=new int[width];
-		for (int j = 0; j < width; ++j)
-		{
-			matrix[i][j]=0;
-		}
-	}
 
-	return matrix;
-}
 void Canny::computeGradient(double **image, int width, int height, double ** &gradient, double** &gradientOrientation){
 	/*
 	* Esta funcion calcula los valores de gradiente y la orientacion del gradiente.
 	* gradient y gradientOrientation son parametros(matrices) pasados por referencia, se inicializa en esta funcion.
 	*/
-	gradient=this->gaussian.initMatrix(width,height);
-	gradientOrientation=gaussian.initMatrix(width,height);
+	gradient=this->u.initMatrix(width,height,0.0);
+	gradientOrientation=this->u.initMatrix(width,height,0.0);
 	double auxOrientation;
 	for (int i = 0; i < height; ++i)
 	{
@@ -145,7 +113,7 @@ int ** Canny::getBorder(double * blackWitheVector, int width, int height){
 	/*
 	* Transforma el vector binario en una matriz binaria. 
 	*/
-	cannyMatrix border=initBinaryMatrix(width, height);
+	cannyMatrix border=this->u.initMatrix(width, height,0);
 	int index_row = 0;
 	int index_col = 0;
 	for (int i = 0; i < (width*height); ++i)
@@ -211,7 +179,7 @@ int ** Canny::hysteresis(double ** image, int width, int height, double thresh[2
 		}
 	}
 	delete[] stack;
-	canny_free_memory(image,height);
+	u.free_memory(image,height);
 	pix.clear();
 	return getBorder(bw,width,height);
 }
@@ -226,7 +194,7 @@ double ** Canny::nonMaximunSuppression(double ** &gradient, double ** &gradientO
 	double yoff[181];
 	double hfrac[181];
 	double vfrac[181];
-	stb_image result=this->gaussian.initMatrix(width,height);
+	stb_image result=this->u.initMatrix(width,height,0.0);
 	for (int i = 0; i <= 180; ++i)
 	{
 		double angle = ((i * M_PI )/ 180);
@@ -341,10 +309,10 @@ cannyMatrix Canny::canny(double **image, int width, int height, double thresh[2]
 	// supresion no maxima en base al radio
     stb_image nonMaxSupr=nonMaximunSuppression(gradient,gradientOrientation,width,height,radius);
     // liberacion de punteros
-	canny_free_memory(gradient,height);
-	canny_free_memory(gradientOrientation,height);
+	this->u.free_memory(gradient,height);
+	this->u.free_memory(gradientOrientation,height);
 	//canny_free_memory(nonMaxSupr,height);
-	canny_free_memory(image,height);
+	this->u.free_memory(image,height);
 	printf("\n Devloped by Ismael Farinango -2023 \n");
 	return hysteresis(nonMaxSupr,width,height,thresh);
 }
