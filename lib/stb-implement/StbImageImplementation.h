@@ -22,6 +22,7 @@ private:
     const char *name;
     char *imgc;
     double ** stroke(double **image, int &width, int &height, int x, int y);
+    Utility u;
 public:
     /**
      * @brief Lee imagenes en formato jpeg
@@ -37,7 +38,7 @@ public:
      * @param width Numero de columnas de la imagen
      * @param height Numero de fila de la imagen
     */
-    void imshow(const char *absolutPath, stb_image image, int width, int height);
+    void imwrite(const char *absolutPath, stb_image image, int width, int height);
         /**
      * @brief Escribe una imagen en formato jpg, jpeg
      * @param absolutPath Ruta donde se va a guardar la imagen
@@ -45,7 +46,7 @@ public:
      * @param width Numero de columnas de la imagen
      * @param height Numero de fila de la imagen
     */
-    void imshow(const char *absolutPath, int ** image, int width, int height);
+    void imwrite(const char *absolutPath, int ** image, int width, int height);
     /**
      * @brief Redimenciona la imagen
      * @param image Matriz que contiene la imagen
@@ -63,7 +64,6 @@ public:
 };
 
 double ** StbImageImplementation::stroke(double **image, int &width, int &height, int x, int y){
-    Utility u;
     stb_image stroke=u.initMatrix(width-(2*x),height-(2*y),0.0);
 
     for(int i=y;i<height-y;i++){
@@ -80,7 +80,6 @@ double ** StbImageImplementation::stroke(double **image, int &width, int &height
 }
 
 double** StbImageImplementation::imresize(double ** image, int width, int height, int newWidth, int newHeight){
-    Utility u;
     float* img=new float[width*height];
     float *resize=new float[newWidth*newHeight];
     int cont=0;
@@ -103,10 +102,9 @@ stb_image StbImageImplementation::imread(const char *absolutPath, int &width, in
     * absolutPath: recibe la ruta absoluta de la imagen y el nobre de le imagen
     * Ejemplo: /home/user/img/imagen.jpg
     */
-    GaussianFilter gaussian;
     int n;
     unsigned char *data = stbi_load(absolutPath, &width, &height, &n, 1);
-    stb_image img = gaussian.initMatrix(width, height);
+    stb_image img = u.initMatrix(width, height,0.0);
     int cont = 0;
     //printf("Imagen cargada, canales: %d\t, size %d x %d",n, width, height);
     for (int i = 0; i < height; i++)
@@ -134,10 +132,9 @@ stb_image StbImageImplementation::imread(const char *absolutPath, int &width, in
     * absolutPath: recibe la ruta absoluta de la imagen y el nobre de le imagen
     * Ejemplo: /home/user/img/imagen.jpg
     */
-    GaussianFilter gaussian;
     int n;
     unsigned char *data = stbi_load(absolutPath, &width, &height, &n, 1);
-    stb_image img = gaussian.initMatrix(width, height);
+    stb_image img = this->u.initMatrix(width, height,0.0);
     int cont = 0;
     //printf("Imagen cargada, canales: %d\t, size %d x %d",n, width, height);
     for (int i = 0; i < height; i++)
@@ -157,7 +154,7 @@ stb_image StbImageImplementation::imread(const char *absolutPath, int &width, in
     return img;
 }
 
-void StbImageImplementation::imshow(const char *absolutePath, stb_image image, int width, int height){
+void StbImageImplementation::imwrite(const char *absolutePath, stb_image image, int width, int height){
         char *img=new char[width*height];
         int index=0;
         for (short int i = 0; i < height; i++)
@@ -174,7 +171,7 @@ void StbImageImplementation::imshow(const char *absolutePath, stb_image image, i
         
 }
 
-void StbImageImplementation::imshow(const char *absolutePath, int ** image, int width, int height){
+void StbImageImplementation::imwrite(const char *absolutePath, int ** image, int width, int height){
         char *img=new char[width*height];
         int index=0;
         for (short int i = 0; i < height; i++)
