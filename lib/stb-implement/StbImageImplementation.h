@@ -10,7 +10,7 @@ extern "C"
 }
 /**
  * @author Ing. Ismael Farinango - 2023
- * @details Contiene las funciones para leer y escribir imagenes, utiliza la libreria stb_image
+ * @details Contiene las funciones para leer y escribir imagenes de tipo JPG y JPEG, utiliza la libreria stb_image
 */
 typedef double **stb_image;
 class StbImageImplementation
@@ -25,10 +25,11 @@ private:
     Utility u;
 public:
     /**
-     * @brief Lee imagenes en formato jpeg
+     * @brief Lee imagenes en formato jpeg, jpg
      * @param absolutPath Ruta absoluta de la imagen a leer
      * @param width Variable por referencia para numero de columnas de la imagen
      * @param height Variable por referencia para numero de filas de la imagen
+     * @note La funcion solo soporta los formatos JPG, JPEG. Retorna matriz tipo double **
     */
     stb_image imread(const char *absolutPath, int &width, int &height);
     /**
@@ -37,14 +38,16 @@ public:
      * @param image Matriz que contiene la imagen
      * @param width Numero de columnas de la imagen
      * @param height Numero de fila de la imagen
+     * @note La funcion soporta los formatos JPG, JPEG
     */
     void imwrite(const char *absolutPath, stb_image image, int width, int height);
-        /**
+    /**
      * @brief Escribe una imagen en formato jpg, jpeg
      * @param absolutPath Ruta donde se va a guardar la imagen
      * @param image Matriz que contiene la imagen
      * @param width Numero de columnas de la imagen
      * @param height Numero de fila de la imagen
+     * @note La funcion soporta los formatos JPG, JPEG
     */
     void imwrite(const char *absolutPath, int ** image, int width, int height);
     /**
@@ -54,9 +57,19 @@ public:
      * @param height Filas de la imagen
      * @param newWidth Columnas redimencionadas
      * @param newHeight Filas redimencionadas
+     * @note La funcion retorna una matriz de tipo double ** con la imagen redimencionada
     */
     double** imresize(double ** image, int width, int height, int newWidth, int newHeight);
 
+    /**
+     * @brief Lee imagenes en formato jpeg, jpg
+     * @param absolutPath Ruta absoluta de la imagen a leer
+     * @param width Variable por referencia para numero de columnas de la imagen
+     * @param height Variable por referencia para numero de filas de la imagen
+     * @param x Valo porcentual a desplzarse en x (ancho)
+     * @param y Valor porcentual a desplazarse en y (alto)
+     * @note La funcion solo soporta los formatos JPG, JPEG. Retorna matriz tipo double **
+    */
     double ** imread(const char* absolutpath,int &width, int &height, double x, double y);
 
     StbImageImplementation(/* args */);
@@ -106,17 +119,11 @@ stb_image StbImageImplementation::imread(const char *absolutPath, int &width, in
     unsigned char *data = stbi_load(absolutPath, &width, &height, &n, 1);
     stb_image img = u.initMatrix(width, height,0.0);
     int cont = 0;
-    //printf("Imagen cargada, canales: %d\t, size %d x %d",n, width, height);
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
            *(*(img + i) + j) = double(*(data + cont));
-          /* int index=(i*width + j)*n;
-           double r=(double)data[index];
-           double g=(double)data[index +1];
-           double b=(double)data[index +2];
-           img[i][j]= (r+g+b)/3.0;//(double)data[cont];*/
             cont++;
         }
     }
