@@ -39,7 +39,7 @@ static char *line1 = NULL;
 static int max_line_len1;
 
 
-void  train_model(const char* fileTrain, const char *fileModel )//estos es un void
+void  train_model(const char* fileTrain, const char *fileModel , double gamma, double c)//estos es un void
 {
     const char* anrchivo_train=fileTrain;
     const char* model_file_name=fileModel;
@@ -47,11 +47,11 @@ void  train_model(const char* fileTrain, const char *fileModel )//estos es un vo
 	param.svm_type = 0;
 	param.kernel_type = 2;
 	param.degree = 3;
-	param.gamma = 29;	
+	param.gamma = gamma;	
 	param.coef0 = 0;
 	param.nu = 0.5;
 	param.cache_size = 100;
-	param.C = 1000; //500
+	param.C = c; //500
 	param.eps = 1e-3;
 	param.p = 0.1;
 	param.shrinking = 1;
