@@ -41,6 +41,10 @@ double ** Sobel::applySobel(double** image, int width, int height){
         }
         
     }
+
+    u.free_memory(matrixGx,height);
+    u.free_memory(matrixGy,height);
+    u.free_memory(image,height);
     
     return gradient;
 }
