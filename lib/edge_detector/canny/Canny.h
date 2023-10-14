@@ -26,8 +26,24 @@ private:
 	void blackWitheVector(double ** image, int width, int height, double * &blackWithe, int * &stack, std::vector<int> &pixel, double minthresh);
 	int ** getBorder(double * blackWitheVector, int width, int height);
 public:
-
+	/**
+	 * @brief Funcion de correccion de gamma en la imagen.
+	 * @param image Matriz puntero de tipo double** que contiene la imagen
+	 * @param width Numero de columnas de la imagen
+	 * @param height Numero de filas de la imagen
+	 * @param gamma Valor de Gamma a aplicar
+	*/
 	void addGamma(double ** &image, int width, int height, double gamma);
+	/**
+	 * @brief Funcion Canny para la deteccion de bordes finos.
+	 * @param image Matriz puntero de tipo double** que contiene la imagen.
+	 * @param width Numero de columnas de la imagen
+	 * @param height Numero de filas de la imagen
+	 * @param thresh Umbrales minimos y maximos. Formato double [2]={0.0,0.5}
+	 * @param sigma Valor de sigma.
+	 * @param gamma Valor de gamma, por defecto gamma=1
+	 * @param radius Valor del radio, por defecto radius=1
+	*/
 	cannyMatrix canny(double **image, int width, int height, double thresh[2],double sigma,double gamma=1, double radius=1);
 
 };
