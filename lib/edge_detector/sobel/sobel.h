@@ -15,10 +15,17 @@ private:
     FilterProcess f;
     Utility u;
 public:
-    double ** applySobel(double** image, int width, int height);
+    /**
+     * @brief Funcion que realiza la operacion de sobel, para la deteccion de bordes
+     * @param image Matriz puntero de tipo double ** que contine la imagen a procesar.
+     * @param width Numero de columnas de la imagen
+     * @param height NUmero de filas de la imagen
+     * @param thresh Umbral de binarizacion (opcional)
+    */
+    int ** applySobel(double** image, int width, int height, double thresh=0.0);
 };
 
-double ** Sobel::applySobel(double** image, int width, int height){
+int ** Sobel::applySobel(double** image, int width, int height, double thresh){
     double** matrixGx=nullptr;
     double** matrixGy=nullptr;
     std::thread threadMGX([&](){
@@ -31,13 +38,13 @@ double ** Sobel::applySobel(double** image, int width, int height){
 
     threadMGX.join();
     threadMGY.join();
-    double** gradient=u.initMatrix(width,height,0.0);
+    int** gradient=u.initMatrix(width,height,0);
     for (size_t i = 0; i <height; i++)
     {
         for (size_t j = 0; j < width; j++)
         {
-            int gradientValue=int((sqrt(pow(2,matrixGx[i][j])+pow(2,matrixGy[i][j])))/255);
-            gradient[i][j]=gradientValue>0?1:0;//>1?0:gradientValue;
+            double gradientValue=int((sqrt(pow(matrixGx[i][j],2)+pow(matrixGy[i][j],2)))/255);
+            gradient[i][j]=gradientValue>thresh?1:0;
         }
         
     }
