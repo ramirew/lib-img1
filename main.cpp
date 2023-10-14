@@ -19,6 +19,7 @@ int main(){
     double thresh[2]={0.2,0.5};
     int **sobel=s.applySobel(image,width,height);
     stb.imwrite("img.jpeg",sobel,width,height);
+
     u.free_memory(sobel,height);
     return 0;
 }
