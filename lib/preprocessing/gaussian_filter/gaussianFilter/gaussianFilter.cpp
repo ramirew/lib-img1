@@ -7,29 +7,7 @@ GaussianFilter::GaussianFilter()
 {
     /*Constructor de la clase*/
 }
-kernel GaussianFilter::initMatrix(short int width, short int height)
-{
-    kernel matrix = new double *[height];
-    for (size_t i = 0; i < height; i++)
-    {
-        matrix[i] = new double[width];
-        for (short int j = 0; j < width; j++)
-        {
-            matrix[i][j] = 0.0;
-        }
-    }
-    // memset(matrix[0], 0.0, width * height * sizeof(double));
-    return matrix;
-}
-void GaussianFilter::freeMemory(kernel &matrix, short int numRows)
-{
-    // Libera la memoria de la matriz  n x n
-    for (short int i = 0; i < numRows; i++)
-    {
-        delete[] matrix[i];
-    }
-    delete[] matrix;
-}
+
 
 kernel GaussianFilter::initKernel(short int kernelSize, double value)
 {
@@ -89,51 +67,6 @@ kernel GaussianFilter::gaussianKernel(short int kernelSize, double sigma)
     return gaussianKernel;
 }
 
-void GaussianFilter::zeroPadding(kernel &image, short int &width, short int &height, short int kernelSize)
-{
-    // Calcula el padding  que se le va a agregar
-    short int paddingSize = (kernelSize / 2) * 2;
-    // Clacular el index, este se encargar de ubicar el pixel de la imagen en la matriz padding
-    short int index = kernelSize / 2;
-    // Se crea una nueva matriz que contedra la imagen aumentado el padding.
-    kernel imagePadding = initMatrix((width + paddingSize), (height + paddingSize));
-    // Agregar el paddig a la matriz de la imagen
-    // double aux=0;
-    for (short int i = index; i < (height + index); i++)
-    {
-        for (short int j = index; j < (width + index); j++)
-        {
-            // aux=image[i-index][j-index];
-            imagePadding[i][j] = image[i - index][j - index];
-        }
-    }
-    int j = 0;
-    freeMemory(image, height);
-    width = (width + paddingSize);
-    height = (height + paddingSize);
-    image = imagePadding;
-}
-
-double GaussianFilter::comvolution(kernel &image, short int positionX, short int positionY, kernel gaussianKernel, short int kernelSize)
-{
-    /*
-     * positionX y positionY corresponden a la posicion donde se encuentra el pixel de la imagen que va a ser comvulusionado.
-     */
-    double sum = 0.0;
-    int gaussianKernelRow = 0, gaussianKernelCol = 0;
-    for (int row = positionY; row < (kernelSize + positionY); row++)
-    {
-        for (int col = positionX; col < (kernelSize + positionX); col++)
-        {
-            sum = sum + (image[row][col] * gaussianKernel[gaussianKernelRow][gaussianKernelCol]);
-            gaussianKernelCol++;
-        }
-        gaussianKernelCol = 0;
-        gaussianKernelRow++;
-    }
-
-    return sum;
-}
 
 int GaussianFilter::computeKernelSize(double sigma){
     /*
@@ -152,13 +85,13 @@ kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int h
 
 kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int height, short int kernelSize, double sigma)
 {
-  
+    int auxHeight=height;
     // Inicializa la matriz donde se va ha almacenar los resutados
-    kernel result = initMatrix(width, height);
+    kernel result = this->u.initMatrix(width, height,0.0);
     // Se crea el kernel gaussiano
     kernel __gaussianKernel = gaussianKernel(kernelSize, sigma);
     // los valores de width, y height despues del zeropadding cambian.
-    zeroPadding(image, width, height, kernelSize);
+    double** zeropadding=this->f.zeroPadding(image, width, height, kernelSize);
     // se calcula los nuevos numeros de filas y columnas
    
     short int row = height - kernelSize;
@@ -169,15 +102,16 @@ kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int h
         for (short int x = 0; x <= col; x++)
         {
             // realiza la operacion de la comvolucion de cada pixel de la imagen con el kernel
-            result[y][x] = comvolution(image, x, y, __gaussianKernel, kernelSize);
+            result[y][x] = this->f.convolution(zeropadding, x, y, __gaussianKernel, kernelSize);
            // printf("%f\t",result[y][x]);
         }
        // printf("\n");
     }
     // libera la memoria de la matriz que contiene el kernel
-    freeMemory(__gaussianKernel, kernelSize);
+   this->u.free_memory(__gaussianKernel, kernelSize);
     // Libera la memoria de la matriz que contiene la imagen
-    freeMemory(image, height);
+    this->u.free_memory(image, auxHeight);
+    this->u.free_memory(zeropadding,height);
     //retorna la matriz resultante.
     return result;
 }
