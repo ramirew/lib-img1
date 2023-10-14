@@ -12,6 +12,13 @@ public:
  FilterProcess(/* args */);
  double convolution(double ** &image, short int positionX, short int positionY, double ** kernel, short int kernelSize);
  double convolution(double** &image,short int positionX, short int positionY, std::vector<std::vector<int>> kernel);
+ /**
+  * @brief Funcion encargada de ejecutar la operacion de Zero Padding
+  * @param image Matriz puntero de tipo double, contiene la iamgen a procesar.
+  * @param width Numero de columnas de la imagen
+  * @param height Numero de filas de la imagen
+  * @param kernelSize Longitud del kernel
+ */
  double** zeroPadding(double ** &image, short int &width, short int &height, short int kernelSize);
  double** conv2d(double** image, short int width, short int height, std::vector<std::vector<int>> kernel);
 
@@ -34,7 +41,6 @@ double** FilterProcess::zeroPadding(double ** &image, short int &width, short in
     {
         for (short int j = index; j < (width + index); j++)
         {
-            // aux=image[i-index][j-index];
             imagePadding[i][j] = image[i - index][j - index];
         }
     }
@@ -99,5 +105,6 @@ double FilterProcess::convolution(double** &image, short int positionX, short in
         }
        // printf("\n");
     }
+    u.free_memory(matrixPadding,height);
     return result;
  }
