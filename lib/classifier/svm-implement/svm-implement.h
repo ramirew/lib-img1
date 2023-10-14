@@ -2,6 +2,10 @@
 #include "./svm/svm.h"
 #include "./svm/svm.cpp"
 #include "./svm/svm-predict.h"
+/**
+ * @author Ing. Ismael Farinango - 2023
+ * @details Contiene la implementacion de los clasificadores libsvm.
+*/
 class SvmImplement
 {
 private:
@@ -12,7 +16,7 @@ public:
     * @param featureFile ruta del archivo  que contiene el vector de caracteristicas
     * @param modelOutFile ruta donde se va a guaradar el modelo
     */
-    void svmTrain(const char* featureFile, const char *modelOutFile);
+    void svmTrain(const char* featureFile, const char *modelOutFile, double gamma, double C);
 
     /**
      * @brief Evalua el mmodelo entrenado
@@ -23,8 +27,8 @@ public:
     void svmTest(const char *testFeatureFile, const char* modelFile, const char* resultFile);
 };
 
-void SvmImplement::svmTrain(const char* featureFile, const char *modelOutFile){
-    train_model(featureFile,modelOutFile);
+void SvmImplement::svmTrain(const char* featureFile, const char *modelOutFile, double gamma, double C){
+    train_model(featureFile,modelOutFile,gamma, C);
 }
 
 void SvmImplement::svmTest(const char *testFeatureFile, const char* modelFile, const char* resultFile){
