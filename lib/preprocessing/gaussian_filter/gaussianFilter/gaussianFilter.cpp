@@ -80,7 +80,29 @@ int GaussianFilter::computeKernelSize(double sigma){
 
 kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int height, kernel gaussianKernel, short int kernelSize)
 {
-    return 0;
+        int auxHeight=height;
+    // Inicializa la matriz donde se va ha almacenar los resutados
+    kernel result = this->u.initMatrix(width, height,0.0);
+    // los valores de width, y height despues del zeropadding cambian.
+    double** zeropadding=this->f.zeroPadding(image, width, height, kernelSize);
+    // se calcula los nuevos numeros de filas y columnas
+   
+    short int row = height - kernelSize;
+    short int col = width - kernelSize;
+
+    for (short int y = 0; y <= row; y++)
+    {
+        for (short int x = 0; x <= col; x++)
+        {
+            // realiza la operacion de la comvolucion de cada pixel de la imagen con el kernel
+            result[y][x] = this->f.convolution(zeropadding, x, y, gaussianKernel, kernelSize);
+        }
+    }
+    // Libera la memoria de la matriz que contiene la imagen
+    this->u.free_memory(image, auxHeight);
+    this->u.free_memory(zeropadding,height);
+    //retorna la matriz resultante.
+    return result;
 }
 
 kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int height, short int kernelSize, double sigma)
@@ -103,9 +125,8 @@ kernel GaussianFilter::gaussianFilter(kernel image, short int width, short int h
         {
             // realiza la operacion de la comvolucion de cada pixel de la imagen con el kernel
             result[y][x] = this->f.convolution(zeropadding, x, y, __gaussianKernel, kernelSize);
-           // printf("%f\t",result[y][x]);
+           
         }
-       // printf("\n");
     }
     // libera la memoria de la matriz que contiene el kernel
    this->u.free_memory(__gaussianKernel, kernelSize);
