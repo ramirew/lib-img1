@@ -110,9 +110,65 @@ public:
      * @brief Mensaje de informacion
      */
     void info();
+
+    void writeMatrix(const char *filePath, double **matrix, int width, int height);
+    void writeMatrix(const char *filePath, int **matrix, int width, int height);
+
+    /**
+     * @brief Retorna el valor maximo de una matriz
+     * @param matrix Matriz de datos.
+     * @param width Numero de columnas
+     * @param height Numero de filas
+    */
+    double getMaxValue(double ** matrix, int width, int height);
 };
 
-void Utility::info(){
+double Utility::getMaxValue(double **matrix, int width, int height){
+    double maxvalue=matrix[0][0];
+    for (size_t i = 0; i < height; i++)
+    {
+        for (size_t j = 0; j < width; j++)
+        {
+            maxvalue=matrix[i][j]>maxvalue?matrix[i][j]:maxvalue;
+        }
+        
+    }
+    return maxvalue;
+    
+}
+
+void Utility::writeMatrix(const char *filePath, double **matrix, int width, int height)
+{
+    ofstream file;
+    file.open(filePath);
+    for (size_t i = 0; i < height; i++)
+    {
+        for (size_t j = 0; j < width; j++)
+        {
+            file << matrix[i][j] << ", ";
+        }
+        file << endl;
+    }
+    file.close();
+}
+
+void Utility::writeMatrix(const char *filePath, int **matrix, int width, int height)
+{
+    ofstream file;
+    file.open(filePath);
+    for (size_t i = 0; i < height; i++)
+    {
+        for (size_t j = 0; j < width; j++)
+        {
+            file << matrix[i][j] << ", ";
+        }
+        file << endl;
+    }
+    file.close();
+}
+
+void Utility::info()
+{
     printf("The lib-img library has been successfully integrated.\n\n");
 }
 
