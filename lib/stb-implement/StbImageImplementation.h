@@ -168,7 +168,7 @@ void StbImageImplementation::imwrite(const char *absolutePath, stb_image image, 
         {
             for (short int j = 0; j < width; j++)
             {
-                img[index]=char(int(image[i][j])*255);
+                img[index]=(uint8_t)(image[i][j]);
                 index++;
             }
             
@@ -185,7 +185,7 @@ void StbImageImplementation::imwrite(const char *absolutePath, int ** image, int
         {
             for (short int j = 0; j < width; j++)
             {
-                img[index]=char(image[i][j]*255);
+                img[index]=image[i][j]>1?(uint8_t)image[i][j]:static_cast<unsigned char>(image[i][j]*255);
                 index++;
             }
             
