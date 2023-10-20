@@ -58,3 +58,19 @@ stb.imwrite("image.jpg",image,width, height);
  u.free_memory(image,height);
 }
 ```
+2. **Equalizacion de histograma**<br/>
+```bash
+#include "./lib-img/lib/lib-include.h
+int main(){
+Utility u;
+StbImageImplementation stb;
+HistogramHandler h; //instancia a la clase histograma
+int width, height;
+double** image=stb.imread("ruta_imagen/imagen.jpg",width, height); //Lectura de imagen
+int ** histeq=h.histeq(image,width,height);//equaliza el histograma de la imagen
+//Guardar imagen
+stb.imwrite("image.jpg",histeq,width, height);
+//Liberar puntero
+ u.free_memory(histeq,height);
+}
+```
