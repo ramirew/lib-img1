@@ -24,22 +24,7 @@ Library to process images, have Canny, Sobel, Gaussian filter.
         #include "./lib-img/lib/lib-include.h
       ```
 # leer imagenes
-Lib-img contiene la implementación de STB_IMAGE.La clase StbImageImplementation contiene dos funciones: imread y imwrite. La función <b> imread</b> recibe tres parámetros:
-<br/>
-<b>ruta_imagen/image.jpg</b> de tipo const char*
-<br/>
-<b>width</b> de tipo int
-<br/>
-<b>height</b> de tipo int
-<br/>
-Para guardar una imágen puede hacer uso de la función <b>imwrite</b>. Los parámetros requeridos son:
-<br/>
-<b>ruta_imagen/imagen.jpg</b> de tipo const char*
-<br/>
-<b>width</b> de tipo int
-<br/>
-<b>height</b> de tipo int
-<br/>
+Lib-img contiene la implementación de STB_IMAGE.La clase StbImageImplementation contiene dos funciones: imread y imwrite. 
 A contunuación se muestra un ejemplo de lectura y escritura de imagen.
 ```bash
 #include "./lib-img/lib/lib-include.h
@@ -55,3 +40,21 @@ stb.imwrite("image.jpg",image,width, height);
 }
 ```
 <b>Nota:</b> Solo soporta imágenes de formato JPG, JPEG.
+# Preprocesamiento de imagenes
+  1. **Filtro Gaussiano**<br/>
+```bash
+#include "./lib-img/lib/lib-include.h
+int main(){
+Utility u;
+StbImageImplementation stb;
+GassianFilter  g;
+int width, height;
+double** image=stb.imread("ruta_imagen/imagen.jpg",width, height); //Lectura de imagen
+double sigma=1; //Valor ajustable
+image=g.gaussianFilter(image,width,height,sigma); // Aplica filtro gaussiano
+//Guardar imagen
+stb.imwrite("image.jpg",image,width, height);
+//Liberar puntero
+ u.free_memory(image,height);
+}
+```
