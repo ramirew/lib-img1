@@ -45,6 +45,8 @@ public:
  */
  double** conv2d(double** image, short int width, short int height, std::vector<std::vector<int>> kernel);
 
+ int ** conv2d(double** image, short int width, short int height, std::vector<std::vector<double>> kernel);
+
      
 };
  FilterProcess:: FilterProcess(/* args */)
@@ -125,5 +127,29 @@ double FilterProcess::convolution(double** &image, short int positionX, short in
         }
     }
     u.free_memory(matrixPadding,height);
+    return result;
+ }
+
+ inline int **FilterProcess::conv2d(double **image, short int width, short int height, std::vector<std::vector<double>> kernel)
+ {
+    int ** result=u.initMatrix(width,height,0);
+    double** matrixPadding= zeroPadding(image,width,height,kernel.size());
+     short int row = height - kernel.size();
+    short int col = width - kernel.size();
+    double ** kernelCopy=u.initMatrix(kernel.size(),kernel.size(),0.0);
+    for(int i=0;i<kernel.size();i++)
+        for(int j=0;j<kernel.size();j++)
+            kernelCopy[i][j]=kernel[i][j];
+
+    for (short int y = 0; y <= row; y++)
+    {
+        for (short int x = 0; x <= col; x++)
+        {
+            // realiza la operacion de la comvolucion de cada pixel de la imagen con el kernel
+            result[y][x] = convolution(matrixPadding, x, y,kernelCopy, kernel.size());
+        }
+    }
+    u.free_memory(matrixPadding,height);
+    u.free_memory(kernelCopy,kernel.size());
     return result;
  }
