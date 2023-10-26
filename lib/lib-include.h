@@ -7,6 +7,7 @@
 #include "./stb-implement/StbImageImplementation.h"
 #include "./edge_detector/canny/Canny.h"
 #include "./edge_detector/sobel/sobel.h"
+#include "./preprocessing/media-filter/media-filter.h"
 
 
 #define LIB_IS_VERSION 2.0
