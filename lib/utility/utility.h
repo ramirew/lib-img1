@@ -121,7 +121,46 @@ public:
      * @param height Numero de filas
     */
     double getMaxValue(double ** matrix, int width, int height);
+    /**
+     * @brief Transforma una matriz de tipo int** a double**
+     * @param matrix Matriz de datos
+     * @param width NUmero de columnas
+     * @param heigt NUmero de filas
+    */
+    double** int2double(int** matrix, int width, int height);
+    /**
+     * @brief Transforma una matriz de tipo double** a int**
+     * @param matrix Matriz de datos
+     * @param width NUmero de columnas
+     * @param heigt NUmero de filas
+    */
+    int** double2int(double** matrix, int width, int height);
 };
+
+double** Utility::int2double(int** matrix, int width, int height){
+    double** newMatrix=initMatrix(width,height,0.0);
+    for(int i=0;i<height; i++){
+        for (size_t j = 0; j < width; j++)
+        {
+            newMatrix[i][j]=static_cast<double>(matrix[i][j]);
+        }
+    }
+    free_memory(matrix,height);
+    return newMatrix;
+}
+
+int** Utility::double2int(double** matrix, int width, int height){
+    int** newMatrix=initMatrix(width,height,0);
+    for(int i=0;i<height; i++){
+        for (size_t j = 0; j < width; j++)
+        {
+            newMatrix[i][j]=static_cast<int>(matrix[i][j]);
+        }
+    }
+    free_memory(matrix,height);
+    return newMatrix;
+}
+
 
 double Utility::getMaxValue(double **matrix, int width, int height){
     double maxvalue=matrix[0][0];
