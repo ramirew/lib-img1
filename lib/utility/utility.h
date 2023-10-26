@@ -269,6 +269,21 @@ double **Utility::initMatrix(int width, int height, double value)
     return matrix;
 }
 
+unsigned char** Utility::initMatrix(int width, int height, char value){
+    unsigned char** matrix=new unsigned char*[height];
+    for (size_t i = 0; i < height; i++)
+    {
+        matrix[i]=new unsigned char[width];
+        for (size_t j = 0; j < width; j++)
+        {
+            matrix[i][j]=value;
+        }
+        
+    }
+    return matrix;
+    
+}
+
 void Utility::free_memory(int **matrix, int height)
 {
     for (int i = 0; i < height; i++)
