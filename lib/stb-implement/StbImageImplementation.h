@@ -50,6 +50,7 @@ public:
      * @note La funcion soporta los formatos JPG, JPEG
     */
     void imwrite(const char *absolutPath, int ** image, int width, int height);
+    void imwrite(const char *absolutPath, unsigned char** image, int width, int height);
     /**
      * @brief Redimenciona la imagen
      * @param image Matriz que contiene la imagen
@@ -71,6 +72,8 @@ public:
      * @note La funcion solo soporta los formatos JPG, JPEG. Retorna matriz tipo double **
     */
     double ** imread(const char* absolutpath,int &width, int &height, double x, double y);
+
+    unsigned char** imread2d(const char* absolutepath, int &width, int &height,int channel=1);
 
     StbImageImplementation(/* args */);
    // ~StbImageImplementation();
@@ -133,6 +136,25 @@ stb_image StbImageImplementation::imread(const char *absolutPath, int &width, in
     return img;
 }
 
+unsigned char** StbImageImplementation::imread2d(const char* absolutpath,int &width, int &height, int channel){
+    int n;
+    unsigned char *data = stbi_load(absolutpath, &width, &height, &n, 1);
+    unsigned char** image=u.initMatrix(width,height,'0');
+    int cont = 0;
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+           *(*(image + i) + j) = (*(data + cont));
+            cont++;
+        }
+    }
+
+    stbi_image_free(data);
+
+    return image;
+}
+
 stb_image StbImageImplementation::imread(const char *absolutPath, int &width, int &height, double x, double y)
 {
     /*
@@ -186,6 +208,23 @@ void StbImageImplementation::imwrite(const char *absolutePath, int ** image, int
             for (short int j = 0; j < width; j++)
             {
                 img[index]=image[i][j]>1?(uint8_t)image[i][j]:static_cast<unsigned char>(image[i][j]*255);
+                index++;
+            }
+            
+        }
+        stbi_write_jpg(absolutePath,width,height,1,img,100);
+        delete[] img;
+        
+}
+
+void StbImageImplementation::imwrite(const char *absolutePath, unsigned char ** image, int width, int height){
+        char *img=new char[width*height];
+        int index=0;
+        for (short int i = 0; i < height; i++)
+        {
+            for (short int j = 0; j < width; j++)
+            {
+                img[index]=image[i][j];
                 index++;
             }
             
