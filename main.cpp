@@ -15,9 +15,13 @@ int main(){
     Canny c;
     Sobel s;
     HistogramHandler h;
+    MediaFilter m;
     int width, height;
-    double** image=stb.imread("image.jpg",width,height);
-    stb.imwrite("img.jpeg",image,width,height);
+    double** image=stb.imread("/home/ismael/Documents/cara.jpg",width,height);
+    stb.imwrite("org.jpg",image,width,height);
+    int**med=m.medianFilter(image,width,height);
+    stb.imwrite("img.jpeg",med,width,height);
+    u.free_memory(med,height);
     u.free_memory(image,height);
     return 0;
 }
