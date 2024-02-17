@@ -7,6 +7,7 @@ int main(){
      * Sobel
      * svm implement
      * stb_image implement
+     * last version
     */
     //Example to call any class
     StbImageImplementation stb;
