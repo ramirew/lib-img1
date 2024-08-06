@@ -1,28 +1,14 @@
 #include "./lib/lib-include.h" // add to project
-int main(){
-    /**
-     * This library have:
-     * Canny
-     * GaussianFilter
-     * Sobel
-     * svm implement
-     * stb_image implement
-     * last version
-    */
-    //Example to call any class
-    StbImageImplementation stb;
+int main()
+{
     Utility u;
-    GaussianFilter g;
-    Canny c;
-    Sobel s;
-    HistogramHandler h;
-    MediaFilter m;
+    StbImageImplementation stb;
+    HistogramHandler h; // instancia a la clase histograma
     int width, height;
-    double** image=stb.imread("/home/ismael/Documents/cara.jpg",width,height);
-    stb.imwrite("org.jpg",image,width,height);
-    int**med=m.medianFilter(image,width,height);
-    stb.imwrite("img.jpeg",med,width,height);
-    u.free_memory(med,height);
-    u.free_memory(image,height);
-    return 0;
+    double **image = stb.imread("/home/xriva20/Documentos/examen-paralela/ImagensPrueba/IMG5000.jpg", width, height); // Lectura de imagen
+    int **histeq = h.histeq(image, width, height);                                                                    // equaliza el histograma de la imagen
+    // Guardar imagen
+    stb.imwrite("image.jpg", histeq, width, height);
+    // Liberar puntero
+    u.free_memory(histeq, height);
 }
