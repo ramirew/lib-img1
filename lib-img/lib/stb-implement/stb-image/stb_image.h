@@ -1627,7 +1627,7 @@ static unsigned char *stbi__convert_format(unsigned char *data, int img_n, int r
       return stbi__errpuc("outofmem", "Out of memory");
    }
 
-#pragma omp parallel for private(j, i) collapse(2)
+
    for (j = 0; j < (int)y; ++j)
    {
       for (i = 0; i < (int)x; ++i)
@@ -2499,7 +2499,7 @@ static void stbi__idct_block(stbi_uc *out, int out_stride, short data[64])
    short *d = data;
 
 // columns
-#pragma omp parallel for private(i)
+
    for (i = 0; i < 8; ++i, ++d, ++v)
    {
       // if all zeroes, shortcut -- this avoids dequantizing 0s and IDCTing

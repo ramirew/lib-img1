@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
+#include "../../../utility/utility.h"
+#include "../../filter-process/filter-process.h"
 typedef double **kernel;
 using namespace std;
 

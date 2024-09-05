@@ -255,12 +255,7 @@ int stbi_write_force_png_filter = -1;
 #endif
 
 static int stbi__flip_vertically_on_write = 0;
-/**
- * @brief Configura si la imagen se debe voltear verticalmente al escribirla.
- * 
- * @param flag Un valor booleano que indica si la imagen debe ser volteada (1 para voltear, 0 para no voltear).
- * @note Esta función afecta a todas las operaciones de escritura de imágenes que se realicen posteriormente.
- */
+
 STBIWDEF void stbi_flip_vertically_on_write(int flag)
 {
    stbi__flip_vertically_on_write = flag;
@@ -273,17 +268,6 @@ typedef struct
    unsigned char buffer[64];
    int buf_used;
 } stbi__write_context;
-/**
- * @brief Inicializa un contexto de escritura basado en callbacks.
- * 
- * @param s Puntero al contexto de escritura (`stbi__write_context`) que se va a inicializar.
- * @param c Función de callback que se utilizará para escribir datos.
- * @param context Contexto adicional que será pasado a la función de callback al momento de la escritura.
- * 
- * @note Esta función configura el contexto de escritura para que use una función de callback 
- *       específica cuando se escriban datos. Esto es útil para escribir imágenes en lugares 
- *       diferentes a un archivo (por ejemplo, en memoria).
- */
 
 // initialize a callback-based context
 static void stbi__start_write_callbacks(stbi__write_context *s, stbi_write_func *c, void *context)
@@ -307,36 +291,13 @@ static void stbi__stdio_write(void *context, void *data, int size)
 #endif
 STBIW_EXTERN __declspec(dllimport) int __stdcall MultiByteToWideChar(unsigned int cp, unsigned long flags, const char *str, int cbmb, wchar_t *widestr, int cchwide);
 STBIW_EXTERN __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int cp, unsigned long flags, const wchar_t *widestr, int cchwide, char *str, int cbmb, const char *defchar, int *used_default);
-/**
- * @brief Escribe datos en un archivo utilizando la función de salida estándar `fwrite`.
- * 
- * @param context Puntero a un `FILE*` que representa el archivo donde se escribirán los datos.
- * @param data Puntero a los datos que se van a escribir en el archivo.
- * @param size Tamaño en bytes de los datos que se van a escribir.
- * 
- * @note Esta función es un wrapper simple alrededor de `fwrite`, que escribe el contenido de `data` 
- *       en el archivo especificado por `context`. Es utilizada como una función de callback para 
- *       escribir datos en archivos en operaciones de escritura de imágenes.
- */
+
 STBIWDEF int stbiw_convert_wchar_to_utf8(char *buffer, size_t bufferlen, const wchar_t *input)
 {
    return WideCharToMultiByte(65001 /* UTF8 */, 0, input, -1, buffer, (int)bufferlen, NULL, NULL);
 }
 #endif
-/**
- * @brief Abre un archivo con el nombre y modo especificados, manejando diferentes configuraciones 
- *        para soportar codificación UTF-8 en Windows y configuraciones específicas del compilador.
- * 
- * @param filename Nombre del archivo que se desea abrir.
- * @param mode Modo en el que se desea abrir el archivo (por ejemplo, "rb" para lectura binaria).
- * 
- * @return `FILE*` Puntero al archivo abierto, o `NULL` si la apertura falla.
- * 
- * @note Esta función maneja la apertura de archivos de manera compatible con diferentes 
- *       versiones del compilador MSVC y con soporte para nombres de archivos UTF-8 en sistemas 
- *       Windows. Dependiendo del compilador y la configuración, utiliza `_wfopen` para manejar 
- *       nombres de archivos en codificación wide (UTF-16) en lugar de la apertura estándar de archivos.
- */
+
 static FILE *stbiw__fopen(char const *filename, char const *mode)
 {
    FILE *f;
@@ -364,33 +325,14 @@ static FILE *stbiw__fopen(char const *filename, char const *mode)
 #endif
    return f;
 }
-/**
- * @brief Inicializa el contexto de escritura de archivos y abre el archivo especificado para escritura.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context` que se va a inicializar.
- * @param filename Nombre del archivo que se desea abrir para escritura.
- * 
- * @return `int` Retorna 1 si el archivo se abrió correctamente, o 0 si la apertura falló.
- * 
- * @note Esta función abre el archivo en modo binario de escritura ("wb") utilizando `stbiw__fopen`, 
- *       y luego inicializa el contexto de escritura `s` con la función `stbi__start_write_callbacks`, 
- *       estableciendo `stbi__stdio_write` como la función de escritura. Si el archivo no se puede 
- *       abrir, la función retorna 0.
- */
+
 static int stbi__start_write_file(stbi__write_context *s, const char *filename)
 {
    FILE *f = stbiw__fopen(filename, "wb");
    stbi__start_write_callbacks(s, stbi__stdio_write, (void *)f);
    return f != NULL;
 }
-/**
- * @brief Finaliza la escritura en el archivo y cierra el archivo asociado al contexto de escritura.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context` que contiene el archivo a cerrar.
- * 
- * @note Esta función cierra el archivo que se abrió y utilizó para la escritura, 
- *       limpiando el contexto de escritura al finalizar.
- */
+
 static void stbi__end_write_file(stbi__write_context *s)
 {
    fclose((FILE *)s->context);
@@ -400,21 +342,7 @@ static void stbi__end_write_file(stbi__write_context *s)
 
 typedef unsigned int stbiw_uint32;
 typedef int stb_image_write_test[sizeof(stbiw_uint32) == 4 ? 1 : -1];
-/**
- * @brief Escribe datos en un contexto de escritura basado en un formato específico.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param fmt Cadena de formato que indica el tipo y tamaño de los datos a escribir.
- * @param v Lista de argumentos variables que contiene los datos a escribir.
- * 
- * @note Esta función recorre la cadena de formato y escribe los datos correspondientes
- *       en el contexto de escritura. Cada carácter en `fmt` determina cómo se debe interpretar
- *       el siguiente dato en la lista de argumentos `v`. Los formatos soportados son:
- *       - '1': Escribe un dato de 1 byte.
- *       - '2': Escribe un dato de 2 bytes.
- *       - '4': Escribe un dato de 4 bytes.
- *       - ' ': No realiza ninguna operación.
- */
+
 static void stbiw__writefv(stbi__write_context *s, const char *fmt, va_list v)
 {
    while (*fmt)
@@ -455,16 +383,7 @@ static void stbiw__writefv(stbi__write_context *s, const char *fmt, va_list v)
       }
    }
 }
-/**
- * @brief Escribe datos en un contexto de escritura basado en un formato específico.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param fmt Cadena de formato que indica el tipo y tamaño de los datos a escribir.
- * @param ... Argumentos adicionales que contienen los datos a escribir.
- * 
- * @note Esta función es una envoltura para `stbiw__writefv`, que maneja la lista de 
- *       argumentos variables y llama a `stbiw__writefv` para realizar la escritura.
- */
+
 static void stbiw__writef(stbi__write_context *s, const char *fmt, ...)
 {
    va_list v;
@@ -472,14 +391,7 @@ static void stbiw__writef(stbi__write_context *s, const char *fmt, ...)
    stbiw__writefv(s, fmt, v);
    va_end(v);
 }
-/**
- * @brief Vacía el contenido del buffer del contexto de escritura y lo escribe en el archivo.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * 
- * @note Esta función escribe el contenido del buffer en el contexto de escritura y
- *       luego limpia el buffer, dejándolo listo para nuevas operaciones de escritura.
- */
+
 static void stbiw__write_flush(stbi__write_context *s)
 {
    if (s->buf_used)
@@ -488,43 +400,19 @@ static void stbiw__write_flush(stbi__write_context *s)
       s->buf_used = 0;
    }
 }
-/**
- * @brief Escribe un solo byte en el contexto de escritura.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param c Byte que se va a escribir.
- * 
- * @note Esta función llama a la función de escritura especificada en el contexto
- *       para escribir un solo byte.
- */
+
 static void stbiw__putc(stbi__write_context *s, unsigned char c)
 {
    s->func(s->context, &c, 1);
 }
-/**
- * @brief Escribe un byte en el buffer del contexto de escritura, con manejo de buffer.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param a Byte que se va a escribir.
- * 
- * @note Si el buffer está lleno, esta función lo vacía antes de agregar el nuevo byte.
- */
+
 static void stbiw__write1(stbi__write_context *s, unsigned char a)
 {
    if (s->buf_used + 1 > sizeof(s->buffer))
       stbiw__write_flush(s);
    s->buffer[s->buf_used++] = a;
 }
-/**
- * @brief Escribe tres bytes en el buffer del contexto de escritura, con manejo de buffer.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param a Primer byte que se va a escribir.
- * @param b Segundo byte que se va a escribir.
- * @param c Tercer byte que se va a escribir.
- * 
- * @note Si el buffer está lleno, esta función lo vacía antes de agregar los nuevos bytes.
- */
+
 static void stbiw__write3(stbi__write_context *s, unsigned char a, unsigned char b, unsigned char c)
 {
    int n;
@@ -536,19 +424,7 @@ static void stbiw__write3(stbi__write_context *s, unsigned char a, unsigned char
    s->buffer[n + 1] = b;
    s->buffer[n + 2] = c;
 }
-/**
- * @brief Escribe un píxel en el contexto de escritura según el formato especificado.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param rgb_dir Dirección del canal RGB (si es 0, se escribe como RGB, si es 1, como BGR).
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param write_alpha Indica si se debe escribir el canal alfa (-1 para antes de RGB, 1 para después).
- * @param expand_mono Si es cierto, expande un canal monocromático a RGB.
- * @param d Puntero a los datos del píxel que se van a escribir.
- * 
- * @note Esta función maneja diferentes formatos de píxeles y escribe los datos correspondientes
- *       en el contexto de escritura. Puede manejar píxeles monocromáticos, con alfa y RGB/BGR.
- */
+
 static void stbiw__write_pixel(stbi__write_context *s, int rgb_dir, int comp, int write_alpha, int expand_mono, unsigned char *d)
 {
    unsigned char bg[3] = {255, 0, 255}, px[3];
@@ -583,23 +459,7 @@ static void stbiw__write_pixel(stbi__write_context *s, int rgb_dir, int comp, in
    if (write_alpha > 0)
       stbiw__write1(s, d[comp - 1]);
 }
-/**
- * @brief Escribe píxeles de una imagen en el contexto de escritura.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param rgb_dir Dirección del canal RGB (si es 0, se escribe como RGB, si es 1, como BGR).
- * @param vdir Dirección vertical (si es 1, de arriba a abajo, si es -1, de abajo a arriba).
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * @param write_alpha Indica si se debe escribir el canal alfa.
- * @param scanline_pad Cantidad de bytes para rellenar al final de cada línea de escaneo.
- * @param expand_mono Si es cierto, expande un canal monocromático a RGB.
- * 
- * @note Esta función escribe todos los píxeles de la imagen en el contexto de escritura,
- *       respetando la dirección RGB/BGR, la dirección vertical y el relleno al final de cada línea de escaneo.
- */
+
 static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, int x, int y, int comp, void *data, int write_alpha, int scanline_pad, int expand_mono)
 {
    stbiw_uint32 zero = 0;
@@ -622,7 +482,7 @@ static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, i
       j = 0;
    }
 
-#pragma omp parallel for private(i)
+
    for (j = j_end; j != j_end; j += vdir)
    {
       for (i = 0; i < x; ++i)
@@ -634,27 +494,7 @@ static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, i
       s->func(s->context, &zero, scanline_pad);
    }
 }
-/**
- * @brief Función genérica para escribir un archivo de imagen con un formato específico.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param rgb_dir Dirección del canal RGB (si es 0, se escribe como RGB, si es 1, como BGR).
- * @param vdir Dirección vertical (si es 1, de arriba a abajo, si es -1, de abajo a arriba).
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param expand_mono Si es cierto, expande un canal monocromático a RGB.
- * @param data Puntero a los datos de la imagen.
- * @param alpha Indica si se debe escribir el canal alfa.
- * @param pad Cantidad de bytes para rellenar al final de cada línea de escaneo.
- * @param fmt Cadena de formato para los datos que se escribirán.
- * @param ... Parámetros adicionales de la cadena de formato.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función se encarga de escribir un archivo de imagen utilizando un formato especificado en la cadena `fmt`.
- *       Es responsable de preparar el archivo, escribir los encabezados y los datos de los píxeles.
- */
+
 static int stbiw__outfile(stbi__write_context *s, int rgb_dir, int vdir, int x, int y, int comp, int expand_mono, void *data, int alpha, int pad, const char *fmt, ...)
 {
    if (y < 0 || x < 0)
@@ -671,20 +511,6 @@ static int stbiw__outfile(stbi__write_context *s, int rgb_dir, int vdir, int x, 
       return 1;
    }
 }
-/**
- * @brief Escribe un archivo BMP en el contexto de escritura.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función se encarga de escribir un archivo BMP, incluyendo el encabezado del archivo,
- *       el encabezado de la imagen y los datos de los píxeles.
- */
 
 static int stbi_write_bmp_core(stbi__write_context *s, int x, int y, int comp, const void *data)
 {
@@ -695,41 +521,14 @@ static int stbi_write_bmp_core(stbi__write_context *s, int x, int y, int comp, c
                          'B', 'M', 14 + 40 + (x * 3 + pad) * y, 0, 0, 14 + 40, // file header
                          40, x, y, 1, 24, 0, 0, 0, 0, 0, 0);                   // bitmap header
 }
-/**
- * @brief Escribe un archivo BMP utilizando una función de escritura personalizada.
- * 
- * @param func Función de escritura personalizada.
- * @param context Contexto adicional para la función de escritura.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función permite escribir un archivo BMP utilizando una función de escritura personalizada,
- *       lo que proporciona mayor flexibilidad en el manejo de los datos de la imagen.
- */
+
 STBIWDEF int stbi_write_bmp_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const void *data)
 {
    stbi__write_context s = {0};
    stbi__start_write_callbacks(&s, func, context);
    return stbi_write_bmp_core(&s, x, y, comp, data);
 }
-/**
- * @brief Escribe una imagen en formato BMP en un archivo.
- * 
- * @param filename Nombre del archivo donde se guardará la imagen.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función abre un archivo y escribe una imagen en formato BMP en él. 
- *       Utiliza otras funciones internas para manejar los detalles del formato BMP.
- */
+
 #ifndef STBI_WRITE_NO_STDIO
 STBIWDEF int stbi_write_bmp(char const *filename, int x, int y, int comp, const void *data)
 {
@@ -745,20 +544,6 @@ STBIWDEF int stbi_write_bmp(char const *filename, int x, int y, int comp, const 
 }
 #endif //! STBI_WRITE_NO_STDIO
 
-/**
- * @brief Escribe una imagen en formato TGA en el contexto de escritura especificado.
- * 
- * @param s Puntero al contexto de escritura `stbi__write_context`.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función escribe los datos de la imagen en formato TGA utilizando un contexto de escritura personalizado.
- *       También admite la compresión RLE si está habilitada.
- */
 static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, void *data)
 {
    int has_alpha = (comp == 2 || comp == 4);
@@ -793,7 +578,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
          jdir = -1;
       }
 
-#pragma omp parallel for private(i, k)
+
       for (j = jend; j != jend; j += jdir)
       {
          unsigned char *row = (unsigned char *)data + j * x * comp;
@@ -863,21 +648,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
    }
    return 1;
 }
-/**
- * @brief Escribe una imagen en formato TGA utilizando una función de escritura personalizada.
- * 
- * @param func Función de escritura personalizada.
- * @param context Contexto adicional para la función de escritura.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @note Esta función permite escribir un archivo TGA utilizando una función de escritura personalizada,
- *       proporcionando mayor flexibilidad en el manejo de los datos de la imagen.
- */
+
 STBIWDEF int stbi_write_tga_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const void *data)
 {
    stbi__write_context s = {0};
@@ -886,21 +657,6 @@ STBIWDEF int stbi_write_tga_to_func(stbi_write_func *func, void *context, int x,
 }
 
 #ifndef STBI_WRITE_NO_STDIO
-/**
- * @brief Escribe una imagen en formato TGA en un archivo.
- * 
- * @param filename Nombre del archivo donde se guardará la imagen.
- * @param x Ancho de la imagen en píxeles.
- * @param y Altura de la imagen en píxeles.
- * @param comp Número de componentes en el píxel (1, 2, 3 o 4).
- * @param data Puntero a los datos de la imagen.
- * 
- * @return 1 si la operación fue exitosa, 0 si hubo un error.
- * 
- * @details Esta función abre un archivo especificado por `filename` y escribe una imagen en formato TGA. 
- *          La función utiliza un contexto de escritura `stbi__write_context` y llama a `stbi_write_tga_core` 
- *          para manejar el formato TGA. Al finalizar la escritura, cierra el archivo.
- */
 STBIWDEF int stbi_write_tga(char const *filename, int x, int y, int comp, const void *data)
 {
    stbi__write_context s = {0};
@@ -913,8 +669,6 @@ STBIWDEF int stbi_write_tga(char const *filename, int x, int y, int comp, const 
    else
       return 0;
 }
-
-
 #endif
 
 // *************************************************************************************************
@@ -922,13 +676,7 @@ STBIWDEF int stbi_write_tga(char const *filename, int x, int y, int comp, const 
 // by Baldur Karlsson
 
 #define stbiw__max(a, b) ((a) > (b) ? (a) : (b))
-/**
- * @brief Convierte un valor lineal de color a formato RGBE para imágenes HDR.
- * 
- * @param rgbe Puntero donde se almacenará el valor convertido en formato RGBE.
- * @param linear Puntero a un arreglo de 3 elementos que representan los valores de color en formato lineal.
- * @note La conversión se basa en la mayor componente de color y la utiliza para calcular el exponente.
- */
+
 static void stbiw__linear_to_rgbe(unsigned char *rgbe, float *linear)
 {
    int exponent;
@@ -948,18 +696,7 @@ static void stbiw__linear_to_rgbe(unsigned char *rgbe, float *linear)
       rgbe[3] = (unsigned char)(exponent + 128);
    }
 }
-/**
- * @brief Escribe un bloque de datos repetidos en el contexto de escritura.
- * 
- * @param s Contexto de escritura utilizado para la salida de datos.
- * @param length Longitud del bloque de datos repetidos (hasta 127).
- * @param databyte Valor del byte que se repite.
- * 
- * @details Esta función escribe un bloque de datos repetidos en el contexto de escritura `s`. 
- *          El bloque se codifica utilizando un esquema de longitud de ejecución (RLE), donde `length` 
- *          indica la cantidad de veces que `databyte` se repite. La función primero escribe un byte de 
- *          longitud (con un valor entre 129 y 255), seguido por el byte de datos repetidos.
- */
+
 static void stbiw__write_run_data(stbi__write_context *s, int length, unsigned char databyte)
 {
    unsigned char lengthbyte = STBIW_UCHAR(length + 128);
@@ -967,18 +704,7 @@ static void stbiw__write_run_data(stbi__write_context *s, int length, unsigned c
    s->func(s->context, &lengthbyte, 1);
    s->func(s->context, &databyte, 1);
 }
-/**
- * @brief Escribe un bloque de datos sin comprimir en el contexto de escritura.
- * 
- * @param s Contexto de escritura utilizado para la salida de datos.
- * @param length Longitud del bloque de datos (hasta 128).
- * @param data Puntero al bloque de datos que se va a escribir.
- * 
- * @details Esta función escribe un bloque de datos sin comprimir en el contexto de escritura `s`. 
- *          La longitud del bloque se especifica en `length`, y los datos se encuentran en `data`. 
- *          La función primero escribe un byte de longitud (con un valor entre 0 y 128), seguido por 
- *          el bloque de datos.
- */
+
 static void stbiw__write_dump_data(stbi__write_context *s, int length, unsigned char *data)
 {
    unsigned char lengthbyte = STBIW_UCHAR(length);
@@ -986,20 +712,7 @@ static void stbiw__write_dump_data(stbi__write_context *s, int length, unsigned 
    s->func(s->context, &lengthbyte, 1);
    s->func(s->context, data, length);
 }
-/**
- * @brief Escribe una línea de escaneo HDR en el contexto de escritura.
- * 
- * @param s Contexto de escritura utilizado para la salida de datos.
- * @param width Ancho de la línea de escaneo.
- * @param ncomp Número de componentes por píxel (1, 3 o 4).
- * @param scratch Memoria temporal para almacenar datos intermedios.
- * @param scanline Puntero a los datos de la línea de escaneo en formato de coma flotante.
- * 
- * @details Esta función convierte y escribe una línea de escaneo de imagen HDR (High Dynamic Range) en el contexto de escritura `s`. 
- *          Si el ancho de la línea es inferior a 8 píxeles o superior a 32767 píxeles, la función escribe directamente los datos sin 
- *          compresión. De lo contrario, se utiliza un formato comprimido con longitud de ejecución (RLE). 
- *          Los datos de la línea de escaneo se convierten de formato de coma flotante a formato RGBE (RGB Exponential).
- */
+
 static void stbiw__write_hdr_scanline(stbi__write_context *s, int width, int ncomp, unsigned char *scratch, float *scanline)
 {
    unsigned char scanlineheader[4] = {2, 2, 0, 0};
@@ -1059,7 +772,6 @@ static void stbiw__write_hdr_scanline(stbi__write_context *s, int width, int nco
 
       s->func(s->context, scanlineheader, 4);
 
-#pragma omp parallel for private(c, comp, x, r, len)
       for (c = 0; c < 4; c++)
       {
          unsigned char *comp = &scratch[width * c];
@@ -1104,22 +816,7 @@ static void stbiw__write_hdr_scanline(stbi__write_context *s, int width, int nco
       }
    }
 }
-/**
- * @brief Escribe una imagen HDR en formato Radiance (.hdr) en el contexto de escritura especificado.
- * 
- * @param s Contexto de escritura utilizado para la salida de datos.
- * @param x Ancho de la imagen en píxeles.
- * @param y Alto de la imagen en píxeles.
- * @param comp Número de componentes por píxel (1, 3 o 4).
- * @param data Puntero a los datos de la imagen en formato de coma flotante.
- * 
- * @return 1 si la escritura es exitosa, 0 si hay un error.
- * 
- * @details Esta función escribe una imagen HDR en el formato Radiance (.hdr) utilizando un contexto de escritura `s`. 
- *          Primero se escriben los encabezados de la imagen, incluyendo la exposición y la orientación de la imagen. 
- *          Luego, se procesan y escriben las líneas de escaneo de la imagen, convirtiendo los datos de formato de coma 
- *          flotante a formato RGBE (RGB Exponential) y utilizando compresión RLE (Run-Length Encoding) si es aplicable.
- */
+
 static int stbi_write_hdr_core(stbi__write_context *s, int x, int y, int comp, float *data)
 {
    if (y <= 0 || x <= 0 || data == NULL)
@@ -1147,43 +844,14 @@ static int stbi_write_hdr_core(stbi__write_context *s, int x, int y, int comp, f
       return 1;
    }
 }
-/**
- * @brief Escribe una imagen HDR en formato Radiance (.hdr) utilizando una función de escritura personalizada.
- * 
- * @param func Función personalizada para escribir los datos de salida.
- * @param context Contexto que se pasará a la función de escritura.
- * @param x Ancho de la imagen en píxeles.
- * @param y Alto de la imagen en píxeles.
- * @param comp Número de componentes por píxel (1, 3 o 4).
- * @param data Puntero a los datos de la imagen en formato de coma flotante.
- * 
- * @return 1 si la escritura es exitosa, 0 si hay un error.
- * 
- * @details Esta función permite escribir una imagen HDR en el formato Radiance (.hdr) utilizando una función de escritura 
- *          personalizada `func`. El contexto de escritura y la función personalizada se configuran antes de llamar a 
- *          `stbi_write_hdr_core`, que realiza la escritura real de la imagen.
- */
+
 STBIWDEF int stbi_write_hdr_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const float *data)
 {
    stbi__write_context s = {0};
    stbi__start_write_callbacks(&s, func, context);
    return stbi_write_hdr_core(&s, x, y, comp, (float *)data);
 }
-/**
- * @brief Escribe una imagen HDR en formato Radiance (.hdr) en un archivo.
- * 
- * @param filename Nombre del archivo donde se guardará la imagen.
- * @param x Ancho de la imagen en píxeles.
- * @param y Alto de la imagen en píxeles.
- * @param comp Número de componentes por píxel (1, 3 o 4).
- * @param data Puntero a los datos de la imagen en formato de coma flotante.
- * 
- * @return 1 si la escritura es exitosa, 0 si hay un error.
- * 
- * @details Esta función escribe una imagen HDR en el formato Radiance (.hdr) directamente en un archivo especificado por `filename`. 
- *          Se utiliza un contexto de escritura para manejar la salida y `stbi_write_hdr_core` realiza la mayor parte del trabajo. 
- *          El archivo se cierra automáticamente después de la escritura.
- */
+
 #ifndef STBI_WRITE_NO_STDIO
 STBIWDEF int stbi_write_hdr(char const *filename, int x, int y, int comp, const float *data)
 {
@@ -1217,20 +885,7 @@ STBIWDEF int stbi_write_hdr(char const *filename, int x, int y, int comp, const 
 #define stbiw__sbpush(a, v) (stbiw__sbmaybegrow(a, 1), (a)[stbiw__sbn(a)++] = (v))
 #define stbiw__sbcount(a) ((a) ? stbiw__sbn(a) : 0)
 #define stbiw__sbfree(a) ((a) ? STBIW_FREE(stbiw__sbraw(a)), 0 : 0)
-/**
- * @brief Incrementa dinámicamente el tamaño de un arreglo utilizando realloc.
- * 
- * @param arr Doble puntero al arreglo que se va a expandir.
- * @param increment Cantidad de elementos adicionales que se deben agregar.
- * @param itemsize Tamaño de cada elemento en el arreglo.
- * 
- * @return Un puntero al arreglo expandido o NULL si hay un error.
- * 
- * @details Esta función incrementa el tamaño de un arreglo dinámico gestionado manualmente, asegurando que haya 
- *          suficiente espacio para agregar más elementos. Si el arreglo no existía previamente, se inicializa.
- *          La función utiliza realloc para redimensionar el bloque de memoria, manteniendo los elementos existentes
- *          y agregando espacio adicional para los nuevos elementos.
- */
+
 static void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
 {
    int m = *arr ? 2 * stbiw__sbm(*arr) + increment : increment + 1;
@@ -1245,18 +900,7 @@ static void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
    }
    return *arr;
 }
-/**
- * @brief Desplaza y escribe los bits almacenados en el buffer de bits al arreglo de datos.
- * 
- * @param data Puntero al arreglo de datos donde se almacenarán los bits.
- * @param bitbuffer Buffer de bits que se va a vaciar.
- * @param bitcount Cantidad de bits almacenados en el buffer de bits.
- * 
- * @return Puntero actualizado al arreglo de datos.
- * 
- * @details Esta función extrae los bits almacenados en el buffer de bits `bitbuffer` y los escribe en el 
- *          arreglo de datos `data`, asegurando que cada byte completo en `bitbuffer` sea escrito y removido.
- */
+
 static unsigned char *stbiw__zlib_flushf(unsigned char *data, unsigned int *bitbuffer, int *bitcount)
 {
    while (*bitcount >= 8)
@@ -1267,17 +911,7 @@ static unsigned char *stbiw__zlib_flushf(unsigned char *data, unsigned int *bitb
    }
    return data;
 }
-/**
- * @brief Invierte el orden de los bits en un entero de un número específico de bits.
- * 
- * @param code Código cuyo orden de bits se invertirá.
- * @param codebits Número de bits a invertir.
- * 
- * @return Entero con los bits invertidos.
- * 
- * @details Esta función invierte el orden de los primeros `codebits` bits en el entero `code`. Es útil en
- *          contextos donde se requiere manipulación específica de bits, como en algoritmos de compresión.
- */
+
 static int stbiw__zlib_bitrev(int code, int codebits)
 {
    int res = 0;
@@ -1288,22 +922,11 @@ static int stbiw__zlib_bitrev(int code, int codebits)
    }
    return res;
 }
-/**
- * @brief Cuenta el número de bytes coincidentes entre dos buffers hasta un límite.
- * 
- * @param a Puntero al primer buffer.
- * @param b Puntero al segundo buffer.
- * @param limit Máximo número de bytes a comparar.
- * 
- * @return Número de bytes coincidentes.
- * 
- * @details Esta función compara dos buffers byte a byte y cuenta cuántos bytes son iguales desde el comienzo
- *          hasta un límite especificado. Es útil para encontrar longitudes de coincidencia en algoritmos de compresión.
- */
+
 static unsigned int stbiw__zlib_countm(unsigned char *a, unsigned char *b, int limit)
 {
    int i;
-#pragma omp parallel for
+
    for (i = 0; i < limit && i < 258; ++i)
    {
       if (a[i] != b[i])
@@ -1311,16 +934,7 @@ static unsigned int stbiw__zlib_countm(unsigned char *a, unsigned char *b, int l
    }
    return i;
 }
-/**
- * @brief Genera un hash a partir de los primeros 3 bytes de los datos.
- * 
- * @param data Puntero a los datos de los que se generará el hash.
- * 
- * @return Valor hash calculado.
- * 
- * @details Esta función utiliza una serie de operaciones bit a bit para calcular un hash a partir de los primeros 
- *          3 bytes de `data`. Es utilizada en algoritmos de compresión para encontrar coincidencias rápidas en secuencias de datos.
- */
+
 static unsigned int stbiw__zhash(unsigned char *data)
 {
    stbiw_uint32 hash = data[0] + (data[1] << 8) + (data[2] << 16);
@@ -1350,21 +964,7 @@ static unsigned int stbiw__zhash(unsigned char *data)
 #define stbiw__ZHASH 16384
 
 #endif // STBIW_ZLIB_COMPRESS
-/**
- * @brief Comprime datos utilizando un algoritmo basado en DEFLATE y devuelve los datos comprimidos.
- * 
- * @param data Puntero a los datos originales que se desean comprimir.
- * @param data_len Longitud de los datos originales en bytes.
- * @param out_len Puntero a un entero donde se almacenará la longitud de los datos comprimidos.
- * @param quality Parámetro que controla la calidad de la compresión (nivel de compresión).
- * 
- * @return Un puntero a los datos comprimidos.
- * 
- * @details Esta función utiliza una implementación interna del algoritmo DEFLATE para comprimir los datos 
- *          proporcionados. Si se define `STBIW_ZLIB_COMPRESS`, se utiliza una implementación personalizada de 
- *          compresión Zlib, de lo contrario, se utiliza la implementación interna. La función devuelve un 
- *          puntero a los datos comprimidos, y la longitud de estos se almacena en `out_len`.
- */
+
 STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality)
 {
 #ifdef STBIW_ZLIB_COMPRESS
@@ -1522,17 +1122,7 @@ STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, in
    return (unsigned char *)stbiw__sbraw(out);
 #endif // STBIW_ZLIB_COMPRESS
 }
-/**
- * @brief Calcula el CRC32 de un buffer de datos.
- * 
- * @param buffer Puntero al buffer de datos para el que se calculará el CRC32.
- * @param len Longitud del buffer de datos en bytes.
- * 
- * @return El valor CRC32 calculado.
- * 
- * @details Esta función calcula el valor CRC32 del buffer de datos utilizando una tabla predefinida. 
- *          Es útil para verificar la integridad de los datos, especialmente en formatos de archivo como PNG.
- */
+
 static unsigned int stbiw__crc32(unsigned char *buffer, int len)
 {
 #ifdef STBIW_CRC32
@@ -1584,34 +1174,13 @@ static unsigned int stbiw__crc32(unsigned char *buffer, int len)
 #define stbiw__wpng4(o, a, b, c, d) ((o)[0] = STBIW_UCHAR(a), (o)[1] = STBIW_UCHAR(b), (o)[2] = STBIW_UCHAR(c), (o)[3] = STBIW_UCHAR(d), (o) += 4)
 #define stbiw__wp32(data, v) stbiw__wpng4(data, (v) >> 24, (v) >> 16, (v) >> 8, (v));
 #define stbiw__wptag(data, s) stbiw__wpng4(data, s[0], s[1], s[2], s[3])
-/**
- * @brief Escribe el CRC32 al final de un bloque de datos.
- * 
- * @param data Doble puntero al bloque de datos donde se escribirá el CRC32.
- * @param len Longitud del bloque de datos en bytes.
- * 
- * @details Esta función calcula el CRC32 para un bloque de datos y luego lo escribe al final del bloque. 
- *          El CRC32 se calcula a partir de los datos y una etiqueta de 4 bytes que precede a los datos.
- */
+
 static void stbiw__wpcrc(unsigned char **data, int len)
 {
    unsigned int crc = stbiw__crc32(*data - len - 4, len + 4);
    stbiw__wp32(*data, crc);
 }
-/**
- * @brief Calcula el valor del filtro Paeth, utilizado en la compresión PNG.
- * 
- * @param a Valor del píxel a la izquierda.
- * @param b Valor del píxel arriba.
- * @param c Valor del píxel arriba a la izquierda.
- * 
- * @return El valor calculado utilizando el algoritmo Paeth.
- * 
- * @details Esta función implementa el algoritmo de predicción Paeth, que es utilizado en la compresión de 
- *          imágenes PNG para calcular el valor de un píxel basándose en los píxeles adyacentes. El algoritmo 
- *          selecciona el píxel que minimiza la diferencia absoluta en relación con una predicción basada en 
- *          los píxeles a, b y c.
- */
+
 static unsigned char stbiw__paeth(int a, int b, int c)
 {
    int p = a + b - c, pa = abs(p - a), pb = abs(p - b), pc = abs(p - c);
@@ -1934,7 +1503,7 @@ static int stbiw__jpg_processDU(stbi__write_context *s, int *bitBuf, int *bitCnt
    int DU[64];
 
 // DCT rows
-#pragma omp parallel for private(dataOff) shared(CDU, du_stride)
+
    for (dataOff = 0, n = du_stride * 8; dataOff < n; dataOff += du_stride)
    {
       stbiw__jpg_DCT(&CDU[dataOff], &CDU[dataOff + 1], &CDU[dataOff + 2], &CDU[dataOff + 3], &CDU[dataOff + 4], &CDU[dataOff + 5], &CDU[dataOff + 6], &CDU[dataOff + 7]);
@@ -1949,7 +1518,7 @@ static int stbiw__jpg_processDU(stbi__write_context *s, int *bitBuf, int *bitCnt
    }
 
 // Quantize/descale/zigzag the coefficients
-#pragma omp parallel for private(x, y, j, i) shared(CDU, fdtbl, DU)
+
    for (y = 0, j = 0; y < 8; ++y)
    {
       for (x = 0; x < 8; ++x, ++j)
@@ -2082,14 +1651,15 @@ static int stbi_write_jpg_core(stbi__write_context *s, int width, int height, in
                                                                                 : uvti);
    }
 
-#pragma omp parallel for
+
    for (row = 0, k = 0; row < 8; ++row)
    {
-#pragma omp parallel for
+
       for (col = 0; col < 8; ++col, ++k)
       {
          fdtbl_Y[k] = 1 / (YTable[stbiw__jpg_ZigZag[k]] * aasf[row] * aasf[col]);
          fdtbl_UV[k] = 1 / (UVTable[stbiw__jpg_ZigZag[k]] * aasf[row] * aasf[col]);
+         
       }
    }
 
@@ -2138,13 +1708,12 @@ static int stbi_write_jpg_core(stbi__write_context *s, int width, int height, in
             for (x = 0; x < width; x += 16)
             {
                float Y[256], U[256], V[256];
-#pragma omp parallel for
                for (row = y, pos = 0; row < y + 16; ++row)
                {
                   // row >= height => use last input row
                   int clamped_row = (row < height) ? row : height - 1;
                   int base_p = (stbi__flip_vertically_on_write ? (height - 1 - clamped_row) : clamped_row) * width * comp;
-#pragma omp parallel for
+
                   for (col = x; col < x + 16; ++col, ++pos)
                   {
                      // if col >= width => use pixel from last input column
@@ -2164,10 +1733,8 @@ static int stbi_write_jpg_core(stbi__write_context *s, int width, int height, in
                {
                   float subU[64], subV[64];
                   int yy, xx;
-#pragma omp parallel for
                   for (yy = 0, pos = 0; yy < 8; ++yy)
                   {
-#pragma omp parallel for
                      for (xx = 0; xx < 8; ++xx, ++pos)
                      {
                         int j = yy * 32 + xx * 2;
@@ -2190,13 +1757,12 @@ static int stbi_write_jpg_core(stbi__write_context *s, int width, int height, in
             for (x = 0; x < width; x += 8)
             {
                float Y[64], U[64], V[64];
-#pragma omp parallel for
                for (row = y, pos = 0; row < y + 8; ++row)
                {
                   // row >= height => use last input row
                   int clamped_row = (row < height) ? row : height - 1;
                   int base_p = (stbi__flip_vertically_on_write ? (height - 1 - clamped_row) : clamped_row) * width * comp;
-#pragma omp parallel for
+
                   for (col = x; col < x + 8; ++col, ++pos)
                   {
                      // if col >= width => use pixel from last input column
